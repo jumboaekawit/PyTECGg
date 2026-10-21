@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/pytecgg?color=3776ab&logo=pypi&logoColor=white)](https://pypi.org/project/pytecgg/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pytecgg?color=3776ab&logo=pypi&logoColor=white)](https://img.shields.io/pypi/dm/PyTECGg)
-[![Python version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-3776ab?logo=python&logoColor=white)](https://pypi.org/project/pytecgg/)
+[![Python version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-3776ab?logo=python&logoColor=white)](https://pypi.org/project/pytecgg/)
 [![License](https://img.shields.io/badge/license-GPLv3-3776ab)](https://github.com/viventriglia/PyTECGg/blob/main/LICENSE)
 
 [![Docs](https://img.shields.io/badge/docs-reference-blue?color=3776ab&logo=materialformkdocs&logoColor=white)](https://viventriglia.github.io/PyTECGg/)

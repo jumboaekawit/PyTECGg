@@ -22,8 +22,8 @@ name = "pytecgg"
 crate-type = ["cdylib"]
 
 [dependencies]
-rinex = { version = "0.19", features = ["flate2"] }
-flate2 = ">=1.1.0, <=1.1.2"
-pyo3 = { version = "0.24.2", features = ["extension-module"] }
-polars = { version = "0.48.1", features = ["lazy", "dtype-datetime"] }
-pyo3-polars = "0.21.0"
+rinex = { version = "0.24.0", features = ["flate2"] }
+flate2 = "1.1.10"
+pyo3 = { version = "0.29.0", features = ["extension-module"] }
+polars = { version = "0.55.2", features = ["lazy", "dtype-datetime"] }
+pyo3-polars = "0.28.0"

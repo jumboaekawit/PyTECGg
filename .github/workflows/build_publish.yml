@@ -53,6 +53,9 @@ jobs:
           - os: ubuntu-latest
             python: "3.13"
             cp: "cp313"
+          - os: ubuntu-latest
+            python: "3.14"
+            cp: "cp314"
           - os: windows-latest
             python: "3.11"
             cp: "cp311"
@@ -62,6 +65,9 @@ jobs:
           - os: windows-latest
             python: "3.13"
             cp: "cp313"
+          - os: windows-latest
+            python: "3.14"
+            cp: "cp314"
           - os: macos-latest
             python: "3.11"
             cp: "cp311"
@@ -71,6 +77,9 @@ jobs:
           - os: macos-latest
             python: "3.13"
             cp: "cp313"
+          - os: macos-latest
+            python: "3.14"
+            cp: "cp314"
 
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +89,7 @@ jobs:
           echo "Commit hash: $(git rev-parse HEAD)"
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==3.0.1
+        run: python -m pip install cibuildwheel==4.3.3
 
       - name: Pre-download virtualenv.pyz (Err. 429, macOS workaround)
         if: runner.os == 'macOS'

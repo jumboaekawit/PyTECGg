@@ -7,15 +7,15 @@ readme = "README.md"
 license = "GPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.14"
-polars = ">=1.5.0, !=1.35.*"
+python = ">=3.11,<3.15"
+polars = "==2.0.0"
 numpy = "^2.0.0"
 scipy = "^1.15"
 pymap3d = "^3.2"
 tzdata = "^2025.2"
 ppigrf = "^2.1.0"
 requests = "^2.30"
-numba = "^0.64"
+numba = "^0.68"
 
 [tool.poetry.group.dev.dependencies]
 maturin = "^1.8.7"
@@ -53,22 +53,26 @@ name = "pytecgg"
 version = "1.4.0"
 description = "Total Electron Content (TEC) reconstruction with GNSS data – a Python package with a Rust core"
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "Vincenzo Ventriglia", email = "vincenzo.ventriglia@outlook.com" }]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable",
 ]
 dependencies = [
-    "polars >=1.5.0, !=1.35.*",
+    "polars ==2.0.0",
     "numpy >=2.0.0",
     "scipy >=1.15",
     "pymap3d >=3.2",
     "tzdata >=2025.2",
     "ppigrf >=2.1.0",
     "requests >=2.30",
-    "numba >=0.64"
+    "numba >=0.68"
 ]

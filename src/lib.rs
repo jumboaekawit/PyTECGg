@@ -88,12 +88,16 @@ fn read_rinex_obs(path: &str) -> PyResult<(PyDataFrame, (f64, f64, f64), String)
         .cast(&DataType::Datetime(TimeUnit::Microseconds, None))
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
 
-    let df = DataFrame::new(vec![
-        epoch_series.into(),
-        Series::new("sv".into(), prns).into(),
-        Series::new("observable".into(), codes).into(),
-        Series::new("value".into(), values).into(),
-    ])
+    let row_count = values.len();
+    let df = DataFrame::new(
+        row_count,
+        vec![
+            epoch_series.into(),
+            Series::new("sv".into(), prns).into(),
+            Series::new("observable".into(), codes).into(),
+            Series::new("value".into(), values).into(),
+        ],
+    )
     .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
 
     Ok((PyDataFrame(df), (x, y, z), version))
@@ -163,14 +167,16 @@ fn read_rinex_nav(path: &str) -> PyResult<BTreeMap<String, PyDataFrame>> {
         let times = constellation_times.remove(&constel).unwrap();
         let svs = constellation_svs.remove(&constel).unwrap();
 
+        let row_count = times.len();
         let epoch_series = Series::new("epoch".into(), times)
             .cast(&DataType::Datetime(TimeUnit::Microseconds, None))
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
         
-        let mut df = DataFrame::new(vec![
-            epoch_series.into(),
-            Series::new("sv".into(), svs).into(),
-        ]).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+        let mut df = DataFrame::new(
+            row_count,
+            vec![epoch_series.into(), Series::new("sv".into(), svs).into()],
+        )
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
 
         for (name, values) in columns {
             let mut final_values = values;
@@ -178,7 +184,8 @@ fn read_rinex_nav(path: &str) -> PyResult<BTreeMap<String, PyDataFrame>> {
                 final_values.push(None);
             }
             let s = Series::new(name.into(), final_values);
-            df.with_column(s).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+            df.with_column(s.into())
+                .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
         }
 
         result.insert(constel, PyDataFrame(df));

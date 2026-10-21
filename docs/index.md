@@ -4,7 +4,7 @@
   <a href="https://pypi.org/project/pytecgg/">
     <img src="https://img.shields.io/pypi/v/pytecgg.svg" alt="PyPI version">
   </a>
-  <img src="https://img.shields.io/badge/python-3.11--3.13-blue.svg" alt="Python version">
+  <img src="https://img.shields.io/badge/python-3.11--3.14-blue.svg" alt="Python version">
   <img src="https://img.shields.io/badge/license-GPLv3-blue.svg" alt="License">
   <img src="https://img.shields.io/pypi/dm/PyTECGg" alt="Downloads">
 </p>
