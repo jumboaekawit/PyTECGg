@@ -7,6 +7,7 @@ from pytecgg.context import GNSSContext
     [
         (["GPS", "Galileo"], ["G", "E"]),
         (["gps", "GALILEO", "BEIDOU"], ["G", "E", "C"]),
+        (["QZSS"], ["J"]),
         (["Glonass"], ["R"]),
         (["G", "GPS", "E"], ["G", "E"]),
     ],

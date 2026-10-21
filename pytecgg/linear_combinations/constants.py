@@ -28,11 +28,13 @@ FREQ_BANDS: dict[str, dict] = {
     },
     "E": {"L1": 1575.42e6, "L5": 1176.45e6, "L7": 1207.14e6, "L8": 1191.795e6},
     "C": BEIDOU_FREQ_BANDS_MODERN,
+    "J": {"L1": 1575.42e6, "L2": 1227.60e6, "L5": 1176.45e6, "L6": 1278.75e6},
 }
 
 # Priorities for frequency pairs
 PHASE_FREQ_PRIORITY = {
     "G": [("L2", "L1"), ("L5", "L1")],
+    "J": [("L2", "L1"), ("L5", "L1")],
     "E": [("L5", "L1"), ("L7", "L1"), ("L8", "L1")],
     "C": [
         ("L7", "L1"),
@@ -47,6 +49,7 @@ PHASE_FREQ_PRIORITY = {
 
 QUALITY_BAND_PAIR_PRIORITY = {
     "G": [("L5", "L1"), ("L2", "L1")],
+    "J": [("L5", "L1"), ("L2", "L1")],
     "E": [("L5", "L1"), ("L8", "L1"), ("L7", "L1")],
     "C": [
         ("L5", "L2"),
@@ -74,6 +77,7 @@ BAND_PAIR_PRIORITY_BY_MODE = {
 }
 CODE_FREQ_PRIORITY = {
     "G": [("C2", "C1"), ("C5", "C1")],
+    "J": [("C2", "C1"), ("C5", "C1")],
     "E": [("C5", "C1"), ("C7", "C1"), ("C8", "C1")],
     "C": [
         ("C7", "C1"),

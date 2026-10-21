@@ -129,7 +129,7 @@ fn read_rinex_nav(path: &str) -> PyResult<BTreeMap<String, PyDataFrame>> {
             Constellation::Glonass => "GLONASS",
             Constellation::Galileo => "GALILEO",
             Constellation::BeiDou => "BEIDOU",
-            // Constellation::QZSS => "QZSS",
+            Constellation::QZSS => "QZSS",
             // Constellation::IRNSS => "IRNSS",
             // Constellation::SBAS => "SBAS",
             // _ => "OTHER", // Uncomment to include other constellations

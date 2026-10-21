@@ -47,12 +47,12 @@ Context parameters are:
 
 - `receiver_pos`, `receiver_name`, `rinex_version`: receiver position in ECEF coordinates (in meters), station identifier, and RINEX version string, respectively.
 - `h_ipp`: the height (in meters) of the Ionospheric Pierce Point (IPP). This defines the altitude of the theoretical "thin shell" used for vertical mapping (typically 350 km).
-- `systems`: a list of constellation identifiers to be processed. `PyTECGg` supports `GPS` (`G`), `Galileo` (`E`), `GLONASS` (`R`), and `BeiDou` (`C`). You can provide full names (*e.g.* `Galileo`) or symbols (*e.g.* `E`).
+- `systems`: a list of constellation identifiers to be processed. `PyTECGg` supports `GPS` (`G`), `Galileo` (`E`), `GLONASS` (`R`), `BeiDou` (`C`), and `QZSS` (`J`). You can provide full names (*e.g.* `Galileo`) or symbols (*e.g.* `E`).
 
 Initialising this object is mandatory: it serves as the required argument for all subsequent processing steps, including cycle-slip detection, IPP calculation, and bias estimation.
 
 !!! info "Internal State Management"
-    The `GNSSContext` also maintains internal attributes like `glonass_channels` and `freq_meta`: these are automatically populated during the ephemeris and signal processing stages. For GPS and Galileo, `freq_meta` is typically a single frequency pair per constellation; for GLONASS and BeiDou it may store per-satellite frequency metadata used downstream during TEC arc extraction and levelling.
+    The `GNSSContext` also maintains internal attributes like `glonass_channels` and `freq_meta`: these are automatically populated during the ephemeris and signal processing stages. For GPS, Galileo, and QZSS, `freq_meta` is typically a single frequency pair per constellation; for GLONASS and BeiDou it may store per-satellite frequency metadata used downstream during TEC arc extraction and levelling.
 
 ## RINEX utilities 🔧
 

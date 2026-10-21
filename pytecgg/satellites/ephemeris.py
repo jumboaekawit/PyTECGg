@@ -36,6 +36,7 @@ _KEPLERIAN_CADENCE_S: dict[str, float] = {
     "BEIDOU": 3600.0,
     "GALILEO": 600.0,
     "GPS": 7200.0,
+    "QZSS": 7200.0,
 }
 
 
@@ -44,8 +45,8 @@ def _drop_week_rollover_bug(
 ) -> pl.DataFrame:
     """Drop ephemeris records corrupted by the rinex-crate (<=0.22) toe bug.
 
-    The crate misreads the toe field at the very first record of a new BDT/GST
-    week (toc seconds-of-week == 0), returning roughly one broadcast-cadence
+    The crate misreads the toe field at the very first record of a new
+    constellation week (toc seconds-of-week == 0), returning roughly one broadcast-cadence
     step instead of 0.0. The misparse is not always exactly one cadence step:
     GPS records at the 2021-01-03 rollover were observed with toe in
     {7168, 7184, 7200} where the file says 0.0 (cadence 7200). The corrupted
@@ -83,7 +84,7 @@ def _drop_week_rollover_bug(
     )
     warnings.warn(
         f"Dropped {bad_count} {const_name} ephemeris record(s) for {sv_id} "
-        f"at BDT/GST week rollover: rinex-crate toe parsing bug returned "
+        f"at constellation week rollover: rinex-crate toe parsing bug returned "
         f"toe={bad_toes}s where the file says 0.0s. Affected epoch(s) "
         f"will fall back to the next valid record (~{cadence/60:.0f} min "
         f"later) for position propagation.",
@@ -99,7 +100,7 @@ def prepare_ephemeris(nav: dict[str, pl.DataFrame], ctx: GNSSContext) -> Ephem:
     This function processes multiple GNSS constellations and formats data based on
     their specific orbit propagation models:
 
-    1.  Keplerian Orbits (GPS, Galileo, BeiDou):
+    1.  Keplerian Orbits (GPS, Galileo, BeiDou, QZSS):
         Keeps every valid broadcast record per satellite. Position computation
         later picks the record nearest to the observation epoch, since broadcast
         Keplerian parameters are only valid for ~±2 h around toe. Records
@@ -179,7 +180,7 @@ def prepare_ephemeris(nav: dict[str, pl.DataFrame], ctx: GNSSContext) -> Ephem:
                 ephem_dict[normalised_sat_id] = sat_ephems_list
 
             else:
-                # Keplerian models (GPS, Galileo, BeiDou): keep every valid record
+                # Keplerian models (GPS, Galileo, BeiDou, QZSS): keep every valid record
                 # so the caller can pick the one nearest to the observation epoch.
                 # Broadcast Keplerian parameters are only valid for ~±2 h around toe,
                 # so reusing one record across a multi-hour file causes 50-200 m bias.

@@ -11,6 +11,7 @@ from pytecgg.satellites.ephemeris import (
     _get_gps_time,
     prepare_ephemeris,
 )
+from pytecgg.satellites.positions import satellite_coordinates
 
 
 def test_get_gps_time():
@@ -54,6 +55,44 @@ def test_prepare_ephemeris_nav_v3(nav_v3_file):
         for record in eph:
             assert record["datetime"].tzinfo is not None
             assert record["constellation"] == "GPS"
+
+
+def test_qzss_navigation_to_satellite_coordinates(nav_v3_file):
+    nav_data = read_rinex_nav(nav_v3_file)
+
+    qzss_data = nav_data.get("QZSS")
+    assert qzss_data is not None
+    assert not qzss_data.is_empty()
+
+    ctx = GNSSContext(
+        receiver_pos=(0.0, 0.0, 0.0),
+        receiver_name="TEST",
+        rinex_version="3.04",
+        systems=["QZSS"],
+    )
+    ephemeris = prepare_ephemeris(nav_data, ctx)
+
+    assert ephemeris
+    assert all(sv.startswith("J") for sv in ephemeris)
+
+    sv, records = next(iter(ephemeris.items()))
+    assert isinstance(records, list) and records
+    record = records[0]
+    assert record["constellation"] == "QZSS"
+
+    coordinates = satellite_coordinates(
+        pl.Series("sv", [sv]),
+        pl.Series("epoch", [record["datetime"]]),
+        ephemeris,
+    )
+    assert coordinates.height == 1
+    assert coordinates.select(
+        pl.all_horizontal(
+            pl.col("sat_x").is_finite(),
+            pl.col("sat_y").is_finite(),
+            pl.col("sat_z").is_finite(),
+        )
+    ).item()
 
 
 def _bad_row(epoch: datetime, cadence: float) -> dict:

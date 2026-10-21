@@ -26,7 +26,7 @@ Why calibration matters? Because without it, you don’t actually know the true 
 This package:
 - is open source: read and access all the code!
 - supports all modern GNSS constellations, codes and signals:
-    - GPS, Galileo, BeiDou, GLONASS
+    - GPS, Galileo, BeiDou, GLONASS, QZSS
 - supports RINEX V2-3-4
 - provides seamless decompression for RINEX files
 

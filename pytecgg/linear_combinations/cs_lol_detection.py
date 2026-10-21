@@ -14,7 +14,7 @@ def _infer_temporal_resolution(df: pl.DataFrame) -> timedelta:
 
 def detect_cs_lol(
     df: pl.DataFrame,
-    system: Literal["G", "E", "C", "R"],
+    system: Literal["G", "E", "C", "R", "J"],
     threshold_std: float = 5.0,
     threshold_abs: float = 5.0,
     max_gap: timedelta = None,
@@ -29,7 +29,7 @@ def detect_cs_lol(
 
     Parameters:
         df (pl.DataFrame): DataFrame containing GNSS observation data with Melbourne-Wübbena values
-        system (Literal["G", "E", "C", "R"]): GNSS system identifier
+        system (Literal["G", "E", "C", "R", "J"]): GNSS system identifier
         threshold_std (float): Threshold in standard deviations for CS detection (default: 5.0)
         threshold_abs (float): Absolute threshold in meters for CS detection (default: 5.0)
         max_gap (timedelta): Maximum allowed time gap between observations before declaring
@@ -83,7 +83,7 @@ def detect_cs_lol(
         "is_cycle_slip": pl.Boolean,
     }
 
-    if system in ["G", "E", "C"] and satellite_freq is None:
+    if system in ["G", "E", "C", "J"] and satellite_freq is None:
         if f1 is None or f2 is None:
             # Fallback to defaults from constants if frequencies are not provided
             band2, band1 = PHASE_FREQ_PRIORITY[system][0]

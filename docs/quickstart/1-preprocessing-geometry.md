@@ -21,7 +21,7 @@ Starting from the basic observables and given a `GNSSContext`, `PyTECGg` can com
 - [Melbourne-Wübbena](https://gssc.esa.int/navipedia/index.php/Detector_based_in_code_and_carrier_phase_data:_The_Melbourne-W%C3%BCbbena_combination) (MW) combination, useful for cycle-slip detection and ambiguity resolution.
 
 !!! info "BeiDou Selection Is Now Per Satellite"
-    GPS, Galileo, and GLONASS still use one selected dual-frequency pair per constellation, but BeiDou is handled satellite by satellite. This lets mixed BDS-2/BDS-3 observation files keep the best valid pair for each `Cxx` satellite instead of forcing one pair across the whole constellation.
+    GPS, Galileo, QZSS, and GLONASS still use one selected dual-frequency pair per constellation, but BeiDou is handled satellite by satellite. This lets mixed BDS-2/BDS-3 observation files keep the best valid pair for each `Cxx` satellite instead of forcing one pair across the whole constellation.
 
 ```python
 from pytecgg.linear_combinations import calculate_linear_combinations

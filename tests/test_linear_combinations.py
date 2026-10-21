@@ -114,6 +114,26 @@ def test_detect_cs():
     assert cs_detections["epoch"][0] == datetime(2023, 1, 1, 0, 2, 0)
 
 
+def test_detect_qzss_cycle_slip_uses_qzss_frequency_defaults():
+    df = pl.DataFrame(
+        {
+            "epoch": [
+                datetime(2023, 1, 1, 0, 0, 0),
+                datetime(2023, 1, 1, 0, 0, 30),
+                datetime(2023, 1, 1, 0, 1, 0),
+            ],
+            "sv": ["J01"] * 3,
+            "mw": [10.0, 10.1, 15.5],
+        }
+    )
+
+    result = detect_cs_lol(df, "J", threshold_std=5, threshold_abs=5)
+
+    assert result.filter(pl.col("is_cycle_slip"))["epoch"].to_list() == [
+        datetime(2023, 1, 1, 0, 1, 0)
+    ]
+
+
 def test_detect_lol():
     """Test loss-of-lock detection"""
     df = pl.DataFrame(
@@ -215,6 +235,30 @@ def test_selection_mode_quality_prefers_l1_l5_when_available():
 
     assert not df_lc.is_empty()
     assert ctx.freq_meta["G"] == (1176.45, 1575.42)
+
+
+def test_qzss_linear_combinations_use_qzss_frequency_pair():
+    ctx = GNSSContext((0.0, 0.0, 0.0), "TEST", "3.04", systems=["J"])
+    obs_df = pl.DataFrame(
+        {
+            "epoch": [datetime(2023, 1, 1, 0, 0, 0)] * 6,
+            "sv": ["J01"] * 6,
+            "observable": ["L1C", "L2X", "L5Q", "C1C", "C2X", "C5Q"],
+            "value": [
+                1000.0,
+                800.0,
+                750.0,
+                20_000_000.0,
+                20_000_010.0,
+                20_000_020.0,
+            ],
+        }
+    )
+
+    result = calculate_linear_combinations(obs_df, ctx, selection_mode="quality")
+
+    assert not result.is_empty()
+    assert ctx.freq_meta["J"] == (1176.45, 1575.42)
 
 
 def test_selection_mode_availability_prefers_more_complete_pair():
