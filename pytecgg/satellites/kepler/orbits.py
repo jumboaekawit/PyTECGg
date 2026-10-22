@@ -33,16 +33,16 @@ def _utc_to_system_time(
 ) -> datetime.datetime:
     """Shift a UTC observation datetime into the constellation's time system.
 
-    GPS / Galileo / QZSS reference broadcast ephemerides to GPST, BeiDou to BDT,
-    GLONASS to UTC. The ICDs fix all offsets:
+    GPS / Galileo / QZSS / NavIC reference broadcast ephemerides to their
+    GPS-aligned time scale, BeiDou to BDT, and GLONASS to UTC. The ICDs fix all offsets:
 
     - GPST = UTC + leap_seconds (currently 18 s, IERS Bulletin C).
     - GST  = GPST (Galileo ICD).
-    - QZSST = GPST (QZSS ICD).
+    - QZSST and IRNWT = GPST (QZSS and NavIC ICDs).
     - BDT  = GPST - 14 s (BDS ICD, BDT epoch 2006-01-01).
     - GLONASS uses UTC directly (no shift).
     """
-    if gnss_system in ("GPS", "GALILEO", "QZSS"):
+    if gnss_system in ("GPS", "GALILEO", "QZSS", "NAVIC"):
         return obs_time_utc + datetime.timedelta(seconds=leap_seconds)
     if gnss_system == "BEIDOU":
         return obs_time_utc + datetime.timedelta(

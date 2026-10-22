@@ -9,6 +9,8 @@ from pytecgg.context import GNSSContext
         (["gps", "GALILEO", "BEIDOU"], ["G", "E", "C"]),
         (["QZSS"], ["J"]),
         (["Glonass"], ["R"]),
+        (["NavIC"], ["I"]),
+        (["SBAS"], ["S"]),
         (["G", "GPS", "E"], ["G", "E"]),
     ],
 )
@@ -47,6 +49,17 @@ def test_symbol_to_name_mapping(rec_pos):
     mapping = ctx.symbol_to_name
     assert mapping["G"] == "GPS"
     assert "E" not in mapping
+
+
+@pytest.mark.parametrize(
+    "system, symbol",
+    [("NAVIC", "I"), ("SBAS", "S")],
+)
+def test_new_system_symbol_to_name_mapping(rec_pos, system, symbol):
+    ctx = GNSSContext(rec_pos, "TEST", "3.04", systems=[system])
+
+    assert ctx.systems == [symbol]
+    assert ctx.symbol_to_name == {symbol: system}
 
 
 def test_init(

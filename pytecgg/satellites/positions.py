@@ -157,7 +157,7 @@ def _compute_coordinates(
                 calculation_failed.add(sv_id)
                 continue
 
-    # Keplerian systems (GPS, Galileo, BeiDou, QZSS)
+    # Keplerian systems and dictionary-backed SBAS ephemerides
     else:
         sv_arr = sv_ids.to_numpy()
         size = len(sv_arr)
@@ -201,6 +201,28 @@ def _compute_coordinates(
     )
 
 
+def _sbas_satellite_coordinates(
+    ephem_dict: dict[str, dict[str, Any]],
+    sv_id: str,
+    gnss_system: str,
+    obs_time: Any,
+) -> np.ndarray:
+    """Propagate an SBAS ECEF state using its broadcast acceleration."""
+    if gnss_system != "SBAS":
+        raise ValueError(f"SBAS propagation cannot be used for {gnss_system}")
+    record = ephem_dict[sv_id]
+    elapsed = (obs_time - record["datetime"]).total_seconds()
+    return np.array(
+        [
+            record[f"satPos{axis}"]
+            + record[f"vel{axis}"] * elapsed
+            + 0.5 * record[f"accel{axis}"] * elapsed**2
+            for axis in ("X", "Y", "Z")
+        ],
+        dtype=float,
+    )
+
+
 def satellite_coordinates(
     sv_ids: pl.Series,
     epochs: pl.Series,
@@ -210,8 +232,9 @@ def satellite_coordinates(
     """
     Compute Earth-Centered Earth-Fixed (ECEF) coordinates for GNSS satellites.
 
-    The function supports GPS, Galileo, BeiDou, QZSS (using Keplerian orbits)
-    and GLONASS (using state-vector propagation).
+    The function supports GPS, Galileo, BeiDou, QZSS, and NavIC (using
+    Keplerian orbits), GLONASS (using state-vector propagation), and SBAS
+    (using broadcast ECEF position, velocity, and acceleration).
 
     Parameters
     ----------
@@ -310,7 +333,11 @@ def satellite_coordinates(
                 sys_sv_ids,
                 sys_epochs,
                 sys_ephem_dict,
-                _kepler_satellite_coordinates,
+                (
+                    _sbas_satellite_coordinates
+                    if system_name == "SBAS"
+                    else _kepler_satellite_coordinates
+                ),
                 gnss_system_internal=system_name,
                 **kwargs,
             )

@@ -134,6 +134,33 @@ def test_detect_qzss_cycle_slip_uses_qzss_frequency_defaults():
     ]
 
 
+@pytest.mark.parametrize(
+    "system, sv, observables, expected_freqs",
+    [
+        ("I", "I01", ("L5C", "L9C", "C5C", "C9C"), (1176.45, 2492.028)),
+        ("S", "S20", ("L1C", "L5I", "C1C", "C5I"), (1176.45, 1575.42)),
+    ],
+)
+def test_linear_combinations_support_navic_and_sbas(
+    system, sv, observables, expected_freqs
+):
+    epoch = datetime(2025, 1, 1)
+    obs = pl.DataFrame(
+        {
+            "epoch": [epoch] * len(observables),
+            "sv": [sv] * len(observables),
+            "observable": list(observables),
+            "value": [100.0, 110.0, 20_000_000.0, 20_000_010.0],
+        }
+    )
+    ctx = GNSSContext((0.0, 0.0, 0.0), "TEST", "3.04", systems=[system])
+
+    output = calculate_linear_combinations(obs, ctx)
+
+    assert not output.is_empty()
+    assert ctx.freq_meta[system] == expected_freqs
+
+
 def test_detect_lol():
     """Test loss-of-lock detection"""
     df = pl.DataFrame(

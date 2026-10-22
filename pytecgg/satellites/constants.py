@@ -174,8 +174,47 @@ EPHEMERIS_FIELDS: EphemerisFields = {
         "toe",
         "week",
     ],
-    "SBAS": [],
-    "NAVIC": [],
+    "SBAS": [
+        "satPosX",
+        "satPosY",
+        "satPosZ",
+        "velX",
+        "velY",
+        "velZ",
+        "accelX",
+        "accelY",
+        "accelZ",
+        "health",
+        "accuracyCode",
+        "iodn",
+    ],
+    "NAVIC": [
+        "iodec",
+        "crs",
+        "deltaN",
+        "m0",
+        "cuc",
+        "e",
+        "cus",
+        "sqrta",
+        "toe",
+        "cic",
+        "omega0",
+        "cis",
+        "i0",
+        "crc",
+        "omega",
+        "omegaDot",
+        "idot",
+        "spare1",
+        "week",
+        "spare2",
+        "accuracy",
+        "health",
+        "tgd",
+        "spare3",
+        "t_tm",
+    ],
 }
 
 CONSTELLATION_PARAMS = {
@@ -271,6 +310,19 @@ KEPLERIAN_POSITION_FIELDS: list[str] = [
     "idot",
     "omega0",
     "omegaDot",
+]
+
+# SBAS navigation messages provide ECEF position, velocity, and acceleration.
+SBAS_POSITION_FIELDS: list[str] = [
+    "satPosX",
+    "satPosY",
+    "satPosZ",
+    "velX",
+    "velY",
+    "velZ",
+    "accelX",
+    "accelY",
+    "accelZ",
 ]
 
 GPS_EPOCH = datetime(1980, 1, 6, tzinfo=timezone.utc)

@@ -9,6 +9,7 @@ from .constants import (
     DEFAULT_LEAP_SECONDS_UTC_GPST,
     GPS_EPOCH,
     KEPLERIAN_POSITION_FIELDS,
+    SBAS_POSITION_FIELDS,
 )
 from pytecgg.context import GNSSContext
 
@@ -100,7 +101,7 @@ def prepare_ephemeris(nav: dict[str, pl.DataFrame], ctx: GNSSContext) -> Ephem:
     This function processes multiple GNSS constellations and formats data based on
     their specific orbit propagation models:
 
-    1.  Keplerian Orbits (GPS, Galileo, BeiDou, QZSS):
+    1.  Keplerian Orbits (GPS, Galileo, BeiDou, QZSS, NavIC):
         Keeps every valid broadcast record per satellite. Position computation
         later picks the record nearest to the observation epoch, since broadcast
         Keplerian parameters are only valid for ~±2 h around toe. Records
@@ -144,6 +145,7 @@ def prepare_ephemeris(nav: dict[str, pl.DataFrame], ctx: GNSSContext) -> Ephem:
 
         params = CONSTELLATION_PARAMS[const_name]
         is_state_vector = symbol_ == "R"
+        is_sbas = symbol_ == "S"
 
         unique_svs = nav[const_name]["sv"].unique().to_list()
         for sat_id_ in unique_svs:
@@ -180,15 +182,33 @@ def prepare_ephemeris(nav: dict[str, pl.DataFrame], ctx: GNSSContext) -> Ephem:
                 ephem_dict[normalised_sat_id] = sat_ephems_list
 
             else:
-                # Keplerian models (GPS, Galileo, BeiDou, QZSS): keep every valid record
+                # Keplerian models (including NavIC) and SBAS retain valid records
                 # so the caller can pick the one nearest to the observation epoch.
                 # Broadcast Keplerian parameters are only valid for ~±2 h around toe,
                 # so reusing one record across a multi-hour file causes 50-200 m bias.
                 # Validate only on fields required for position computation, not all EPHEMERIS_FIELDS
                 # (e.g. bgdE5bE1 for Galileo may be absent for I/NAV-only satellites).
-                position_fields = [f for f in KEPLERIAN_POSITION_FIELDS if f in sat_data.columns]
-                valid_data = sat_data.drop_nulls(subset=position_fields).sort("epoch")
-                valid_data = _drop_week_rollover_bug(valid_data, const_name, normalised_sat_id)
+                required_fields = (
+                    SBAS_POSITION_FIELDS if is_sbas else KEPLERIAN_POSITION_FIELDS
+                )
+                missing_fields = [
+                    field for field in required_fields if field not in sat_data.columns
+                ]
+                if missing_fields:
+                    warnings.warn(
+                        f"Skipping {const_name} ephemeris for {normalised_sat_id}: "
+                        f"required position fields are missing from NAV data: "
+                        f"{missing_fields}",
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+                    continue
+
+                valid_data = sat_data.drop_nulls(subset=required_fields).sort("epoch")
+                if not is_sbas:
+                    valid_data = _drop_week_rollover_bug(
+                        valid_data, const_name, normalised_sat_id
+                    )
                 if valid_data.is_empty():
                     continue
 

@@ -8,7 +8,8 @@ SUPPORTED_SYSTEMS = {
     "GALILEO": "E",
     "BEIDOU": "C",
     "QZSS": "J",
-    # "NAVIC": "I",
+    "NAVIC": "I",
+    "SBAS": "S",
 }
 
 
@@ -36,7 +37,8 @@ class GNSSContext:
         Default is 350,000 m (350 km).
     systems : list[str]
         List of active GNSS constellations, accepting full names or symbols:
-        GPS (G), GLONASS (R), Galileo (E), BeiDou (C), QZSS (J).
+        GPS (G), GLONASS (R), Galileo (E), BeiDou (C), QZSS (J), NavIC (I),
+        and SBAS (S).
     glonass_channels : dict[str, int]
         Mapping of frequency channels for GLONASS satellites
         (e.g., {'R01': 1}). This attribute gets populated during ephemeris parsing.

@@ -49,7 +49,7 @@ def test_kepler_close_to_parabolic():
 _UTC_REF = datetime.datetime(2025, 1, 1, 12, 0, 0, tzinfo=datetime.timezone.utc)
 
 
-@pytest.mark.parametrize("system", ["GPS", "GALILEO", "QZSS"])
+@pytest.mark.parametrize("system", ["GPS", "GALILEO", "QZSS", "NAVIC"])
 def test_utc_to_system_time_gpst_family_adds_leap_seconds(system):
     """GPST = UTC + leap_seconds; GST and QZSST align with GPST."""
     out = _utc_to_system_time(_UTC_REF, system, leap_seconds=18)

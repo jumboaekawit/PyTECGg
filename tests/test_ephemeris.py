@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 import polars as pl
@@ -171,3 +171,124 @@ def test_prepare_ephemeris_populates_leap_seconds(nav_v3_file):
     )
     ephem_override = prepare_ephemeris(nav_data, ctx_override)
     assert ephem_override[any_sv][0]["leap_seconds"] == 37
+
+
+@pytest.mark.parametrize(
+    "constellation, symbol",
+    [("NAVIC", "I"), ("SBAS", "S")],
+)
+def test_supported_constellation_navigation_to_coordinates(
+    nav_v3_file, constellation, symbol
+):
+    nav_data = read_rinex_nav(nav_v3_file)
+    assert constellation in nav_data
+
+    ctx = GNSSContext(
+        (0.0, 0.0, 0.0), "TEST", "3.05", systems=[constellation]
+    )
+    ephemeris = prepare_ephemeris(nav_data, ctx)
+
+    assert ephemeris
+    sv, records = next(iter(ephemeris.items()))
+    assert sv.startswith(symbol)
+    record = records[0]
+    coordinates = satellite_coordinates(
+        pl.Series("sv", [sv]),
+        pl.Series("epoch", [record["datetime"]]),
+        ephemeris,
+    )
+
+    assert coordinates.select(
+        pl.all_horizontal(
+            pl.col("sat_x").is_finite(),
+            pl.col("sat_y").is_finite(),
+            pl.col("sat_z").is_finite(),
+        )
+    ).item()
+
+
+def test_navic_ephemeris_to_satellite_coordinates():
+    epoch = datetime(2024, 1, 1, 12, tzinfo=timezone.utc)
+    orbital_fields = {
+        "toe": 129600.0,
+        "sqrta": 6493.0,
+        "deltaN": 0.0,
+        "m0": 0.1,
+        "e": 0.01,
+        "omega": 0.2,
+        "cuc": 0.0,
+        "cus": 0.0,
+        "crc": 0.0,
+        "crs": 0.0,
+        "cic": 0.0,
+        "cis": 0.0,
+        "i0": 0.5,
+        "idot": 0.0,
+        "omega0": 1.0,
+        "omegaDot": 0.0,
+    }
+    nav = {"NAVIC": pl.DataFrame([{"epoch": epoch, "sv": "1", **orbital_fields}])}
+    ctx = GNSSContext((0.0, 0.0, 0.0), "TEST", "3.04", systems=["I"])
+
+    ephemeris = prepare_ephemeris(nav, ctx)
+    coordinates = satellite_coordinates(
+        pl.Series("sv", ["I01"]),
+        pl.Series("epoch", [epoch]),
+        ephemeris,
+    )
+
+    assert ephemeris["I01"][0]["constellation"] == "NAVIC"
+    assert coordinates.select(
+        pl.all_horizontal(
+            pl.col("sat_x").is_finite(),
+            pl.col("sat_y").is_finite(),
+            pl.col("sat_z").is_finite(),
+        )
+    ).item()
+
+
+def test_sbas_ephemeris_uses_quadratic_ecef_propagation():
+    epoch = datetime(2025, 1, 1, 0, tzinfo=timezone.utc)
+    nav = {
+        "SBAS": pl.DataFrame(
+            [
+                {
+                    "epoch": epoch,
+                    "sv": "120",
+                    "satPosX": 20_000_000.0,
+                    "satPosY": 10_000_000.0,
+                    "satPosZ": 15_000_000.0,
+                    "velX": 10.0,
+                    "velY": -20.0,
+                    "velZ": 30.0,
+                    "accelX": 1.0,
+                    "accelY": 2.0,
+                    "accelZ": -1.0,
+                }
+            ]
+        )
+    }
+    ctx = GNSSContext((0.0, 0.0, 0.0), "TEST", "3.04", systems=["SBAS"])
+    ephemeris = prepare_ephemeris(nav, ctx)
+
+    coordinates = satellite_coordinates(
+        pl.Series("sv", ["S120"]),
+        pl.Series("epoch", [epoch + timedelta(seconds=10)]),
+        ephemeris,
+    )
+
+    assert coordinates["sat_x"][0] == pytest.approx(20_000_150.0)
+    assert coordinates["sat_y"][0] == pytest.approx(9_999_900.0)
+    assert coordinates["sat_z"][0] == pytest.approx(15_000_250.0)
+
+
+def test_prepare_ephemeris_warns_when_required_orbit_fields_are_missing():
+    nav = {
+        "NAVIC": pl.DataFrame(
+            [{"epoch": datetime(2025, 1, 1), "sv": "1", "toe": 0.0}]
+        )
+    }
+    ctx = GNSSContext((0.0, 0.0, 0.0), "TEST", "3.04", systems=["I"])
+
+    with pytest.warns(RuntimeWarning, match="required position fields"):
+        assert prepare_ephemeris(nav, ctx) == {}

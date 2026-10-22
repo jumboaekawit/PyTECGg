@@ -29,6 +29,8 @@ FREQ_BANDS: dict[str, dict] = {
     "E": {"L1": 1575.42e6, "L5": 1176.45e6, "L7": 1207.14e6, "L8": 1191.795e6},
     "C": BEIDOU_FREQ_BANDS_MODERN,
     "J": {"L1": 1575.42e6, "L2": 1227.60e6, "L5": 1176.45e6, "L6": 1278.75e6},
+    "I": {"L5": 1176.45e6, "L9": 2492.028e6},
+    "S": {"L1": 1575.42e6, "L5": 1176.45e6},
 }
 
 # Priorities for frequency pairs
@@ -45,6 +47,8 @@ PHASE_FREQ_PRIORITY = {
         ("L5", "L2"),
     ],
     "R": [("L2", "L1")],
+    "I": [("L5", "L9")],
+    "S": [("L5", "L1")],
 }
 
 QUALITY_BAND_PAIR_PRIORITY = {
@@ -60,6 +64,8 @@ QUALITY_BAND_PAIR_PRIORITY = {
         ("L5", "L1"),
     ],
     "R": [("L2", "L1")],
+    "I": [("L5", "L9")],
+    "S": [("L5", "L1")],
 }
 
 BAND_PAIR_PRIORITY_BY_MODE = {
@@ -88,6 +94,8 @@ CODE_FREQ_PRIORITY = {
         ("C5", "C2"),
     ],
     "R": [("C2", "C1")],
+    "I": [("C5", "C9")],
+    "S": [("C5", "C1")],
 }
 
 # Priorities for channel suffixes
