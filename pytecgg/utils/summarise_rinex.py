@@ -49,7 +49,7 @@ def summarise_rinex_data(
             [
                 pl.col("sv").n_unique().alias("svs"),
                 pl.col("observable").unique().sort().alias("signals"),
-                pl.count().alias("records"),
+                pl.len().alias("records"),
             ]
         )
         .sort("const")
